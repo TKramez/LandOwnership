@@ -28,3 +28,18 @@ Note: I'd like to have this plugin be as highly configurable as possible (Choosi
 I'd like this plugin to be done ASAP as I'm looking to start a survival vanilla server in which people can protect their builds. Just let me know if you've started working on it.
 
 Ask me questions (if you have any) in your replies and I'll get back to you =)
+
+Here is the list of the stuff I've thought up. If I remember more later, or think of something more that would be nice to have, I'll let you know =) Otherwise feel free to add more toggle-able things.
+
+Toggles:
+- mob spawning
+- creeper explosions
+- ghast explosions
+- wither explosion (Body and projectiles)
+- enderman block pickup
+- TNT (Including the TNT in a minecart)
+
+- player vs player combat
+- firespread (still able to make a fire with flint and steel, to make portals or light netherrack)
+- lava flow (in and out of plots from unowned to owned and vice versa)
+- water flow (same)
