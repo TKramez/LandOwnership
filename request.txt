@@ -1,0 +1,30 @@
+Hey everybody =)
+I'm in need of a plugin that allows for players to buy and sell chunks as a way of protecting their builds and items.
+
+Suggested name: ChunksForSale (It's up for the creator of the plugin to choose)
+
+Here's what I want the plugin to be able to do:
+
+The general idea for this plugin is that when a player buys a chunk, then that chunk will only be editable by the owner of the chunk or any members he or she chooses (and admins). Nobody, who isn't a member, can use items or place or remove blocks from the owned chunk.
+
+Most important:
+- Compatible with Essentials money or another easy money system for players to use.
+- configurable commands (IE: "/plot purchase" should have re-defineable aliases of "/plot buy", or "/plot p")
+- Able to sell plots to other players (IE: "/plot sell <player> <amount>" and then that player can accept or deny the offer with "/plot accept" or "/plot deny" for example.)
+- When buying a plot, the chunk should be marked, with configurable options (not mandatory, however a marking with redstone torches in the corners is preferable. And if buying the plot over water, place a cobblestone in each corner of the surface with a redstone torch on top)
+- Able to add/remove players to the plot to allow them to build and use items (IE: "/plot member <player>" and they should be added to the plot the seller stands on)
+- Able to make plots public for everyone to use items within it, but not build (IE: "/Plot public" for the plot you stand on)
+- Ability for admins to claim chunks as server chunks, making people unable to buy or trade them (IE: "/plot server", for the plot you stand on)
+- Able to check how many plots a player has (IE: "/plotlist <page>" would show your total plots + a list of your plots and their coordinates and to which group they belong. Also "/plotlist <player> <page> would check the total number of plots other players has as well as their coordinates (configurable perhaps, to select whether or not it should show coordinates and only the total amount))
+
+Second most important:
+- Able to toggle various states (IE: "/plot toggle pvp" and "/plot toggle explosions" and other commands, for the plot you stand on and for groups of plots (see next commands))
+
+Third most important:
+- Able to group plots together (IE: "/plot group Home" should add the plot you're currently in, to a group called Home (Doesn't have to be case sensitive). These groups should also be able to be sold to other players through a command like "/plotgroup <group> sell <player> <amount>" or if you have an alternative easier option)
+- Able to add/remove players to a group of plots (IE: "/plotgroup <group> member add/remove <player>
+
+Note: I'd like to have this plugin be as highly configurable as possible (Choosing what the command for an action would be, for example).
+I'd like this plugin to be done ASAP as I'm looking to start a survival vanilla server in which people can protect their builds. Just let me know if you've started working on it.
+
+Ask me questions (if you have any) in your replies and I'll get back to you =)

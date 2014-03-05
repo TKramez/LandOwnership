@@ -1,0 +1,10 @@
+price: 50.0
+markPlot: true
+listPageSize: 10
+purchase:
+    - purchase
+    - buy
+    - p
+    - b
+sell:
+    - sell

@@ -1,0 +1,14 @@
+name: LandOwnership
+main: com.tkramez.landownership.LandOwnership
+version: ${version}
+depend: [Vault]
+
+commands:
+   plot:
+      description: Controls for the LandOwnership plugin.
+      usage: /plot <args>
+      
+permissions:
+    land.admin:
+        description: Gives access to admin commands.
+        default: op
