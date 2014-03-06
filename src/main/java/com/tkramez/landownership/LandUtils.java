@@ -185,6 +185,22 @@ public class LandUtils {
 		}
 	}
 	
+	public boolean sell(Player seller, double price) {
+		String id = ChunkID.get(seller.getLocation().getChunk());
+		
+		if (chunks.containsKey(id) && chunks.get(id).isOwner(seller)) {
+			if (econ.depositPlayer(seller.getName(), price).transactionSuccess()) {
+				chunks.remove(id);
+				seller.sendMessage("Successfully sold this plot.");
+			}
+			else
+				seller.sendMessage("Failed to sell this plot.");
+		} else
+			seller.sendMessage("You don't own this plot.");
+		
+		return true;
+	}
+	
 	public boolean sell(final Player seller, String target, String price) {
 		final Chunk chunk = seller.getLocation().getChunk();
 		final String id = ChunkID.get(chunk);
@@ -238,7 +254,7 @@ public class LandUtils {
 				return true;
 			}
 		} else {
-			seller.sendMessage("You don't own that plot.");
+			seller.sendMessage("You don't own this plot.");
 			return true;
 		}
 	}
