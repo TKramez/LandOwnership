@@ -81,18 +81,6 @@ public class LandUtils {
 		}
 	}
 
-	public boolean togglePublic(Player player) {
-		String id = ChunkID.get(player.getLocation().getChunk());
-
-		if (chunks.containsKey(id) && chunks.get(id).isOwner(player.getName())) {
-			chunks.get(id).setPublic(!chunks.get(id).isPublic());
-			player.sendMessage("This chunk is now " + (chunks.get(id).isPublic() ? "public" : "not public") + ".");
-		} else
-			player.sendMessage("You don't own this plot.");
-
-		return true;
-	}
-
 	public boolean addPlayer(Player player, String name) {
 		String id = ChunkID.get(player.getLocation().getChunk());
 		

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -22,7 +23,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class LandOwnership extends JavaPlugin {
-
+	
+	protected final static List<String> toggles = new ArrayList<String>();
+	
+	static {
+		toggles.add("mobspawning");
+		toggles.add("creeperexplosions");
+		toggles.add("ghastexplosions");
+		toggles.add("witherexplosions");
+		toggles.add("endermanpickup");
+		toggles.add("tntexplosions");
+		toggles.add("pvp");
+		toggles.add("firespread");
+		toggles.add("lavaflow");
+		toggles.add("waterflow");
+		toggles.add("public");
+	}
+	
 	private Logger log;
 	private HashMap<String, Land> chunks = new HashMap<String, Land>();
 	private Economy econ;
@@ -122,6 +139,32 @@ public class LandOwnership extends JavaPlugin {
 				if (args.length == 3) {
 					if (sellCommand.contains(args[0])) {
 						return util.sell(player, args[1], args[2]);
+					} else if (args[0].equals("set")) {
+						String id = ChunkID.get(player.getLocation().getChunk());
+
+						if (chunks.containsKey(id) && chunks.get(id).isOwner(player)) {
+							boolean set;
+							
+							try {
+								set = Boolean.parseBoolean(args[2]);
+							} catch (Exception e) {
+								player.sendMessage("That is not a valid option.");
+								return true;
+							}
+							
+							if (toggles.contains(args[1].toLowerCase())) {
+								chunks.get(id).setToggle(args[1].toLowerCase(), set);
+							} else {
+								player.sendMessage("That is not a valid toggle.");
+								return true;
+							}
+							
+							player.sendMessage(args[1] + " is now " + (set ? "enabled" : "disabled") + " for this plot.");
+							return true;
+						} else {
+							player.sendMessage("You don't own this plot.");
+							return true;
+						}
 					}
 				} else if (args.length == 2) {
 					if (args[0].equalsIgnoreCase("add")) {
@@ -169,6 +212,22 @@ public class LandOwnership extends JavaPlugin {
 															price * sellBackMultiplier,
 															econ.currencyNamePlural()));
 						return true;
+					} else if (args[0].equalsIgnoreCase("set")) {
+						String id = ChunkID.get(player.getLocation().getChunk());
+						
+						if (chunks.containsKey(id) && chunks.get(id).isOwner(player)) {
+							StringBuilder builder = new StringBuilder(ChatColor.GREEN + "---Toggles---\n" + ChatColor.WHITE);
+							
+							for (String toggle : toggles) {
+								builder.append(String.format("%s: %b\n", toggle, chunks.get(id).getToggle(toggle)));
+							}
+							
+							player.sendMessage(builder.toString());
+							return true;
+						} else {
+							player.sendMessage("You don't own this plot.");
+							return true;
+						}
 					}
 				}	
 			}

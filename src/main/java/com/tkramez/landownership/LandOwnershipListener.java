@@ -47,7 +47,7 @@ public class LandOwnershipListener implements Listener {
 			Player player = event.getPlayer();
 			String id = ChunkID.get(event.getClickedBlock().getChunk());
 			if (chunks.containsKey(id)) {
-				if (!chunks.get(id).isMember(player) && !chunks.get(id).isPublic()) {
+				if (!chunks.get(id).isMember(player) && !chunks.get(id).getToggle("public")) {
 					player.sendMessage(ChatColor.RED + "You can't use that.");
 					event.setCancelled(true);
 				}
