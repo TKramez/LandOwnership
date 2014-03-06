@@ -31,6 +31,7 @@ public class LandOwnership extends JavaPlugin {
 	private List<String> sellCommand;
 	private boolean markPlot;
 	private int listPageSize;
+	private double sellBackMultiplier;
 	private String dataPath;
 	private LandUtils util;
 	
@@ -101,7 +102,7 @@ public class LandOwnership extends JavaPlugin {
 		}
 		
 		builder.setLength(builder.length() - 2);
-		builder.append("] <buyer> <price> - Attempts to sell the current plot.\n");
+		builder.append("] <buyer> <price> - Attempts to sell the current plot. If no buyer or price then the plot is sold back to the server.\n");
 		builder.append("/plot price - Tells you the price of a plot of land.\n");
 		builder.append("/plot add <name> - Attempts to add the player to the current plot.\n");
 		builder.append("/plot remove <name> - Attempts to remove the player from the current plot.\n");
@@ -140,6 +141,8 @@ public class LandOwnership extends JavaPlugin {
 				}else if (args.length == 1) {
 					if (purchaseCommand.contains(args[0])) {
 						return util.purchase(player, price);
+					} else if (sellCommand.contains(args[0])) {
+						return util.sell(player, price * sellBackMultiplier);
 					} else if (args[0].equalsIgnoreCase("map")) {
 						player.sendMessage(util.buildMap(player));
 						return true;
@@ -157,12 +160,14 @@ public class LandOwnership extends JavaPlugin {
 						return true;
 					} else if (args[0].equalsIgnoreCase("help")) {
 						return false;
-					} else if (args[0].equalsIgnoreCase("public")) {
-						return util.togglePublic(player);
 					} else if (args[0].equalsIgnoreCase("server")) {
 						return util.claimForServer(player);
 					} else if (args[0].equalsIgnoreCase("price")) {
-						player.sendMessage(price + " " + econ.currencyNamePlural());
+						player.sendMessage(String.format("%.2f %s purchase price %.2f %s sell price",
+															price,
+															econ.currencyNamePlural(),
+															price * sellBackMultiplier,
+															econ.currencyNamePlural()));
 						return true;
 					}
 				}	
@@ -229,6 +234,7 @@ public class LandOwnership extends JavaPlugin {
 		sellCommand = this.getConfig().getStringList("sell");
 		markPlot = this.getConfig().getBoolean("markPlot");
 		listPageSize = this.getConfig().getInt("listPageSize");
+		sellBackMultiplier = this.getConfig().getDouble("sellBackMultiplier");
 		
 		buildCommandUsage();
 	}
