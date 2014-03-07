@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,22 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class LandOwnership extends JavaPlugin {
-	
-	protected final static List<String> toggles = new ArrayList<String>();
-	
-	static {
-		toggles.add("mobspawning");
-		toggles.add("creeperexplosions");
-		toggles.add("ghastexplosions");
-		toggles.add("witherexplosions");
-		toggles.add("endermanpickup");
-		toggles.add("tntexplosions");
-		toggles.add("pvp");
-		toggles.add("firespread");
-		toggles.add("lavaflow");
-		toggles.add("waterflow");
-		toggles.add("public");
-	}
 	
 	private Logger log;
 	private HashMap<String, Land> chunks = new HashMap<String, Land>();
@@ -151,14 +134,17 @@ public class LandOwnership extends JavaPlugin {
 								player.sendMessage("That is not a valid option.");
 								return true;
 							}
-							
-							if (toggles.contains(args[1].toLowerCase())) {
-								chunks.get(id).setToggle(args[1].toLowerCase(), set);
-							} else {
+
+							Toggle toggle;
+							try {
+								toggle = Toggle.getByName(args[1]);
+							} catch (Exception e) {
 								player.sendMessage("That is not a valid toggle.");
 								return true;
 							}
-							
+
+							chunks.get(id).setToggle(toggle, set);
+
 							player.sendMessage(args[1] + " is now " + (set ? "enabled" : "disabled") + " for this plot.");
 							return true;
 						} else {
@@ -218,7 +204,7 @@ public class LandOwnership extends JavaPlugin {
 						if (chunks.containsKey(id) && chunks.get(id).isOwner(player)) {
 							StringBuilder builder = new StringBuilder(ChatColor.GREEN + "---Toggles---\n" + ChatColor.WHITE);
 							
-							for (String toggle : toggles) {
+							for (Toggle toggle : Toggle.values()) {
 								builder.append(String.format("%s: %b\n", toggle, chunks.get(id).getToggle(toggle)));
 							}
 							
@@ -269,6 +255,7 @@ public class LandOwnership extends JavaPlugin {
 
 	@SuppressWarnings("unchecked")
 	public void load() throws IOException, ClassNotFoundException {
+		log.info("Data loading.");
 		File file = new File(dataPath);
 
 		if (file.exists()) {
@@ -283,6 +270,8 @@ public class LandOwnership extends JavaPlugin {
 					stream.close();
 			}
 		}
+		
+		log.info("Data loaded.");
 	}
 
 	public void loadConfig() {

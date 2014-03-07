@@ -2,7 +2,7 @@ package com.tkramez.landownership;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.bukkit.Chunk;
@@ -16,7 +16,7 @@ public class Land implements Serializable {
 	private final String world;
 	private final int x, z;
 	private List<String> members = new ArrayList<String>();
-	private HashMap<String, Boolean> toggles = new HashMap<String, Boolean>();
+	private EnumMap<Toggle, Boolean> toggles = new EnumMap<Toggle, Boolean>(Toggle.class);
 	
 	public Land(Player player, Chunk chunk) {
 		this(player.getName(), chunk);
@@ -30,25 +30,27 @@ public class Land implements Serializable {
 		resetToggles();
 	}
 	
-	public void setToggle(String toggle, boolean value) {
+	public void setToggle(Toggle toggle, boolean value) {
 		if (toggles == null)
 			resetToggles();
 		
 		toggles.put(toggle, value);
 	}
 	
-	public boolean getToggle(String toggle) {
+	public boolean getToggle(Toggle toggle) {
 		if (toggles == null)
 			resetToggles();
+		if (!toggles.containsKey(toggle))
+			toggles.put(toggle, false);
 		
 		return toggles.get(toggle);
 	}
 	
 	private void resetToggles() {
 		if (toggles == null)
-			toggles = new HashMap<String, Boolean>();
+			toggles = new EnumMap<Toggle, Boolean>(Toggle.class);
 		
-		for (String toggle : LandOwnership.toggles)
+		for (Toggle toggle : Toggle.values())
 			toggles.put(toggle, false);
 	}
 
