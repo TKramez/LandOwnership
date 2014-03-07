@@ -82,7 +82,7 @@ public class LandUtils {
 	}
 
 	public boolean addPlayer(Player player, String name) {
-		String id = ChunkID.get(player.getLocation().getChunk());
+		String id = ChunkID.get(player);
 		
 		if (chunks.containsKey(id) && chunks.get(id).isOwner(player.getName())) {
 			chunks.get(id).addMember(name);
@@ -94,7 +94,7 @@ public class LandUtils {
 	}
 	
 	public boolean removePlayer(Player player, String name) {
-		String id = ChunkID.get(player.getLocation().getChunk());
+		String id = ChunkID.get(player);
 		
 		if (chunks.containsKey(id) && chunks.get(id).isOwner(player.getName())) {
 			chunks.get(id).removeMember(name);
@@ -134,7 +134,7 @@ public class LandUtils {
 	}
 	
 	public boolean claimForServer(Player player) {
-		String id = ChunkID.get(player.getLocation().getChunk());
+		String id = ChunkID.get(player);
 		
 		if (chunks.containsKey(id)) {
 			player.sendMessage(ChatColor.RED + "This chunk is already owned.");
@@ -174,7 +174,7 @@ public class LandUtils {
 	}
 	
 	public boolean sell(Player seller, double price) {
-		String id = ChunkID.get(seller.getLocation().getChunk());
+		String id = ChunkID.get(seller);
 		
 		if (chunks.containsKey(id) && chunks.get(id).isOwner(seller)) {
 			if (econ.depositPlayer(seller.getName(), price).transactionSuccess()) {

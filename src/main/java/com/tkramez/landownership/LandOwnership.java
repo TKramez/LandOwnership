@@ -123,7 +123,7 @@ public class LandOwnership extends JavaPlugin {
 					if (sellCommand.contains(args[0])) {
 						return util.sell(player, args[1], args[2]);
 					} else if (args[0].equals("set")) {
-						String id = ChunkID.get(player.getLocation().getChunk());
+						String id = ChunkID.get(player);
 
 						if (chunks.containsKey(id) && chunks.get(id).isOwner(player)) {
 							boolean set;
@@ -176,7 +176,7 @@ public class LandOwnership extends JavaPlugin {
 						player.sendMessage(util.buildMap(player));
 						return true;
 					} else if (args[0].equalsIgnoreCase("who")) {
-						String id = ChunkID.get(player.getLocation().getChunk());
+						String id = ChunkID.get(player);
 						String name = "Nobody";
 						if (chunks.containsKey(id)) {
 							name = chunks.get(id).getOwner();
@@ -199,7 +199,7 @@ public class LandOwnership extends JavaPlugin {
 															econ.currencyNamePlural()));
 						return true;
 					} else if (args[0].equalsIgnoreCase("set")) {
-						String id = ChunkID.get(player.getLocation().getChunk());
+						String id = ChunkID.get(player);
 						
 						if (chunks.containsKey(id) && chunks.get(id).isOwner(player)) {
 							StringBuilder builder = new StringBuilder(ChatColor.GREEN + "---Toggles---\n" + ChatColor.WHITE);

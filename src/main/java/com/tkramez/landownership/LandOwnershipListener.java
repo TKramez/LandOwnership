@@ -37,7 +37,7 @@ public class LandOwnershipListener implements Listener {
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player player = event.getPlayer();
-		String id = ChunkID.get(event.getBlock().getChunk());
+		String id = ChunkID.get(event.getBlock());
 		if (chunks.containsKey(id) && !chunks.get(id).isMember(player)) {
 			player.sendMessage(ChatColor.RED + "You can't build here.");
 			event.setCancelled(true);
@@ -49,7 +49,7 @@ public class LandOwnershipListener implements Listener {
 		switch (event.getAction()) {
 		case RIGHT_CLICK_BLOCK:
 			Player player = event.getPlayer();
-			String id = ChunkID.get(event.getClickedBlock().getChunk());
+			String id = ChunkID.get(event.getClickedBlock());
 			if (chunks.containsKey(id)) {
 				if (!chunks.get(id).isMember(player) && !chunks.get(id).getToggle(Toggle.Public)) {
 					player.sendMessage(ChatColor.RED + "You can't use that.");
@@ -64,7 +64,7 @@ public class LandOwnershipListener implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-		String id = ChunkID.get(player.getLocation().getChunk());
+		String id = ChunkID.get(player);
 		
 		if (chunks.containsKey(id) && !chunks.get(id).isMember(player)) {
 			player.sendMessage(ChatColor.RED + "You can't break here.");
@@ -84,7 +84,7 @@ public class LandOwnershipListener implements Listener {
 	
 	private void onPlayerUseBucket(PlayerBucketEvent event) {
 		Player player = event.getPlayer();
-		String id = ChunkID.get(event.getBlockClicked().getChunk());
+		String id = ChunkID.get(event.getBlockClicked());
 		
 		if (chunks.containsKey(id) && !chunks.get(id).isMember(player)) {
 			player.sendMessage(ChatColor.RED + "You can't do that here!");
@@ -97,7 +97,7 @@ public class LandOwnershipListener implements Listener {
 		Iterator<Block> iter = event.blockList().iterator();
 		while (iter.hasNext()) {
 			Block block = iter.next();
-			String id = ChunkID.get(block.getLocation().getChunk());
+			String id = ChunkID.get(block);
 			if (chunks.containsKey(id)) {
 				switch (event.getEntityType()) {
 				case CREEPER:
@@ -125,7 +125,7 @@ public class LandOwnershipListener implements Listener {
 	
 	@EventHandler
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		String id = ChunkID.get(event.getLocation().getChunk());
+		String id = ChunkID.get(event.getLocation());
 		if (chunks.containsKey(id) && !chunks.get(id).getToggle(Toggle.MobSpawning))
 			event.setCancelled(true);
 	}
