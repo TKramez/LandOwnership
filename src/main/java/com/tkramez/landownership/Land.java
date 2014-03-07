@@ -31,14 +31,23 @@ public class Land implements Serializable {
 	}
 	
 	public void setToggle(String toggle, boolean value) {
+		if (toggles == null)
+			resetToggles();
+		
 		toggles.put(toggle, value);
 	}
 	
 	public boolean getToggle(String toggle) {
+		if (toggles == null)
+			resetToggles();
+		
 		return toggles.get(toggle);
 	}
 	
 	private void resetToggles() {
+		if (toggles == null)
+			toggles = new HashMap<String, Boolean>();
+		
 		for (String toggle : LandOwnership.toggles)
 			toggles.put(toggle, false);
 	}
