@@ -88,7 +88,7 @@ public class LandOwnership extends JavaPlugin {
 	private void buildCommandUsage() {
 		PluginCommand command = this.getCommand("plot");
 		
-		StringBuilder builder = new StringBuilder(ChatColor.GREEN + "Plot Commands" + ChatColor.WHITE + "\n");
+		StringBuilder builder = new StringBuilder(ChatColor.GREEN + "Plot Commands " + this.getDescription().getVersion() + ChatColor.WHITE + "\n");
 		builder.append("/plot [");
 		
 		for (String cmd : purchaseCommand) {
