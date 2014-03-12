@@ -5,13 +5,19 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketEvent;
@@ -128,5 +134,55 @@ public class LandOwnershipListener implements Listener {
 		String id = ChunkID.get(event.getLocation());
 		if (chunks.containsKey(id) && !chunks.get(id).getToggle(Toggle.MobSpawning))
 			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		String id = ChunkID.get(event.getBlock());
+		
+		if (chunks.containsKey(id) && !chunks.get(id).getToggle(Toggle.EndermanPickup)) {
+			if (event.getEntityType() == EntityType.ENDERMAN)
+				event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+		if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+			Player defender = (Player) event.getEntity();
+			Player attacker = (Player) event.getDamager();
+			
+			String id1 = ChunkID.get(defender);
+			String id2 = ChunkID.get(attacker);
+			
+			if ((chunks.containsKey(id1) && !chunks.get(id1).getToggle(Toggle.Pvp)) || (chunks.containsKey(id2) && !chunks.get(id2).getToggle(Toggle.Pvp))) {
+				String message = ChatColor.RED + "PVP is disabled in this plot.";
+				defender.sendMessage(message);
+				attacker.sendMessage(message);
+				event.setCancelled(true);
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onBlockFromTo(BlockFromToEvent event) {
+		if (event.getBlock().getType() == Material.STATIONARY_WATER || event.getBlock().getType() == Material.STATIONARY_LAVA) {
+			Toggle toggle = event.getBlock().getType() == Material.STATIONARY_WATER ? Toggle.WaterFlow : Toggle.LavaFlow;
+			String id1 = ChunkID.get(event.getBlock());
+			String id2 = ChunkID.get(event.getToBlock());
+			
+			if ((chunks.containsKey(id1) && !chunks.get(id1).getToggle(toggle)) || (chunks.containsKey(id2) && !chunks.get(id2).getToggle(toggle)))
+				event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onBlockSpread(BlockSpreadEvent event) {
+		if (event.getSource().getType() == Material.FIRE) {
+			String id = ChunkID.get(event.getBlock());
+			
+			if (chunks.containsKey(id) && !chunks.get(id).getToggle(Toggle.FireSpread))
+				event.setCancelled(true);
+		}
 	}
 }
