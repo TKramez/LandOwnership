@@ -2,6 +2,7 @@ package com.tkramez.landownership;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.bukkit.Chunk;
@@ -15,7 +16,7 @@ public class Land implements Serializable {
 	private final String world;
 	private final int x, z;
 	private List<String> members = new ArrayList<String>();
-	private boolean isPublic = false, isPvpEnabled = false, areExplosionsEnabled = false;
+	private EnumMap<Toggle, Boolean> toggles = new EnumMap<Toggle, Boolean>(Toggle.class);
 	
 	public Land(Player player, Chunk chunk) {
 		this(player.getName(), chunk);
@@ -26,8 +27,33 @@ public class Land implements Serializable {
 		world = chunk.getWorld().getName();
 		x = chunk.getX();
 		z = chunk.getZ();
+		resetToggles();
 	}
 	
+	public void setToggle(Toggle toggle, boolean value) {
+		if (toggles == null)
+			resetToggles();
+		
+		toggles.put(toggle, value);
+	}
+	
+	public boolean getToggle(Toggle toggle) {
+		if (toggles == null)
+			resetToggles();
+		if (!toggles.containsKey(toggle))
+			toggles.put(toggle, false);
+		
+		return toggles.get(toggle);
+	}
+	
+	private void resetToggles() {
+		if (toggles == null)
+			toggles = new EnumMap<Toggle, Boolean>(Toggle.class);
+		
+		for (Toggle toggle : Toggle.values())
+			toggles.put(toggle, false);
+	}
+
 	public boolean isServerLand() {
 		return owner.equalsIgnoreCase("server");
 	}
@@ -38,7 +64,7 @@ public class Land implements Serializable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s: %s %d, %d %d Members %s", owner, world, x, z, members.size(), isPublic ? "Public" : "Non-Public");
+		return String.format("%s: %s %d, %d %d Members", owner, world, x, z, members.size());
 	}
 	
 	public String getOwner() {
@@ -52,25 +78,8 @@ public class Land implements Serializable {
 	public void setOwner(String name) {
 		owner = name;
 		members.clear();
-		isPublic = false;
-		isPvpEnabled = false;
-		areExplosionsEnabled = false;
-	}
-	
-	public final boolean isPvpEnabled() {
-		return isPvpEnabled;
-	}
-
-	public final void setPvpEnabled(boolean isPvpEnabled) {
-		this.isPvpEnabled = isPvpEnabled;
-	}
-
-	public final boolean isAreExplosionsEnabled() {
-		return areExplosionsEnabled;
-	}
-
-	public final void setAreExplosionsEnabled(boolean areExplosionsEnabled) {
-		this.areExplosionsEnabled = areExplosionsEnabled;
+		
+		resetToggles();
 	}
 
 	public boolean isOwner(Player player) {
@@ -104,13 +113,5 @@ public class Land implements Serializable {
 
 	public boolean removeMember(String name) {
 		return members.remove(name);
-	}
-
-	public boolean isPublic() {
-		return isPublic;
-	}
-
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
 	}
 }
