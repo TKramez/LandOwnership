@@ -139,7 +139,7 @@ public class LandUtils {
 		if (chunks.containsKey(id)) {
 			player.sendMessage(ChatColor.RED + "This chunk is already owned.");
 		} else {
-			if (player.hasPermission("land.admin")) {
+			if (player.hasPermission(LandOwnership.ADMIN_PERM)) {
 				player.sendMessage("This land has been claimed for the server.");
 				chunks.put(id, new Land("Server", player.getLocation().getChunk()));
 			} else {

@@ -91,7 +91,7 @@ public class Land implements Serializable {
 	}
 
 	public boolean isMember(Player player) {
-		return isMember(player.getName());
+		return isMember(player.getName()) || (isServerLand() && player.hasPermission(LandOwnership.ADMIN_PERM));
 	}
 	
 	public boolean isMember(String name) {
