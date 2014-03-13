@@ -112,20 +112,21 @@ public class LandUtils {
 			for (int j = 0, z = currentZ - 3; j < 7; j++, z++) {
 				String id = ChunkID.get(player.getWorld().getChunkAt(x, z));
 				boolean isCurrent = x == currentX && z == currentZ;
+				ChatColor color = ChatColor.GRAY;
+				char letter = 'X';
 				if (isCurrent)
-					builder.append(ChatColor.GREEN);
-				if (chunks.containsKey(id)) {
-					boolean isServer = chunks.get(id).isServerLand();
-					if (isServer)
-						builder.append(ChatColor.RED);
-					builder.append(chunks.get(id).getOwner().charAt(0));
-					if (isServer)
-						builder.append(ChatColor.WHITE);
-				} else {
-					builder.append("X");
+					color = ChatColor.WHITE;
+				else if (chunks.containsKey(id)) {
+					if (chunks.get(id).isServerLand())
+						color = ChatColor.GOLD;
+					else if (chunks.get(id).isOwner(player))
+						color = ChatColor.GREEN;
+					else
+						color = ChatColor.RED;
+					letter = chunks.get(id).getOwner().charAt(0);
 				}
-				if (isCurrent)
-					builder.append(ChatColor.WHITE);
+				
+				builder.append(color).append(letter);
 			}
 			builder.append("\n");
 		}
