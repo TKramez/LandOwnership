@@ -23,6 +23,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class LandOwnership extends JavaPlugin {
 	
+	public static final String ADMIN_PERM = "land.admin";
+	
 	private Logger log;
 	private HashMap<String, Land> chunks = new HashMap<String, Land>();
 	private Economy econ;
