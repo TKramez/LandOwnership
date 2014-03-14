@@ -89,20 +89,20 @@ public class LandOwnership extends JavaPlugin {
 	
 	private void buildCommandUsage() {
 		PluginCommand command = this.getCommand("plot");
-		
+
 		StringBuilder builder = new StringBuilder(ChatColor.GREEN + "Plot Commands " + this.getDescription().getVersion() + ChatColor.WHITE + "\n");
 		builder.append("/plot [");
-		
+
 		for (String cmd : purchaseCommand) {
 			builder.append(cmd).append(", ");
 		}
-		
+
 		builder.setLength(builder.length() - 2);
 		builder.append("] - Attempts to purchase the current plot.\n").append("/plot [");
 		for (String cmd : sellCommand) {
 			builder.append(cmd).append(", ");
 		}
-		
+
 		builder.setLength(builder.length() - 2);
 		builder.append("] <buyer> <price> - Attempts to sell the current plot. If no buyer or price then the plot is sold back to the server.\n");
 		builder.append("/plot price - Tells you the price of a plot of land.\n");
@@ -111,8 +111,10 @@ public class LandOwnership extends JavaPlugin {
 		builder.append("/plot map - Shows a map of plots.\n");
 		builder.append("/plot list <page> - Lists the plots that you own.\n");
 		builder.append("/plot who - Tells you who owns the plot you are on.\n");
+		builder.append("/plot set <toggleName> <true|false> - Attempts to set the given toggle to the given value on the current plot. If no name or" +
+				" value is given then it lists the current values for all toggles of the current plot.\n");
 		builder.append("/plot server - Claims the current plot for the server. Admin only.");
-		
+
 		command.setUsage(builder.toString());
 	}
 

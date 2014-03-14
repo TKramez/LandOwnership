@@ -114,17 +114,20 @@ public class LandUtils {
 				boolean isCurrent = x == currentX && z == currentZ;
 				ChatColor color = ChatColor.GRAY;
 				char letter = 'X';
-				if (isCurrent)
-					color = ChatColor.WHITE;
-				else if (chunks.containsKey(id)) {
-					if (chunks.get(id).isServerLand())
+				
+				if (chunks.containsKey(id)) {
+					if (isCurrent)
+						color = ChatColor.WHITE;
+					else if (chunks.get(id).isServerLand())
 						color = ChatColor.GOLD;
 					else if (chunks.get(id).isOwner(player))
 						color = ChatColor.GREEN;
 					else
 						color = ChatColor.RED;
 					letter = chunks.get(id).getOwner().charAt(0);
-				}
+				} else if (isCurrent)
+					color = ChatColor.WHITE;
+					
 				
 				builder.append(color).append(letter);
 			}
@@ -153,11 +156,14 @@ public class LandUtils {
 
 	public boolean purchase(Player player, double price) {
 		if (econ.getBalance(player.getName()) >= price) {
+			String id = ChunkID.get(player);
 			Chunk chunk = player.getLocation().getChunk();
-			if (!chunks.containsKey(ChunkID.get(chunk))) {
+			if (!chunks.containsKey(id)) {
 				if (econ.withdrawPlayer(player.getName(), price).transactionSuccess()) {
-					chunks.put(ChunkID.get(chunk), new Land(player, chunk));
+					chunks.put(id, new Land(player, chunk));
 					player.sendMessage("This chunk is now yours!");
+					player.sendMessage(String.format("You have been charged %,.2f %s", price, econ.currencyNamePlural() + "."));
+					player.sendMessage(String.format("Your new balance is %,.2f %s", econ.getBalance(player.getName()), econ.currencyNamePlural() + "."));
 					markChunk(chunk);
 					return true;
 				} else {
@@ -181,6 +187,8 @@ public class LandUtils {
 			if (econ.depositPlayer(seller.getName(), price).transactionSuccess()) {
 				chunks.remove(id);
 				seller.sendMessage("Successfully sold this plot.");
+				seller.sendMessage(String.format("You have been given %,.2f %s", price, econ.currencyNamePlural() + "."));
+				seller.sendMessage(String.format("Your new balance is %,.2f %s", econ.getBalance(seller.getName()), econ.currencyNamePlural() + "."));
 			}
 			else
 				seller.sendMessage("Failed to sell this plot.");
@@ -190,7 +198,7 @@ public class LandUtils {
 		return true;
 	}
 	
-	public boolean sell(final Player seller, String target, String price) {
+	public boolean sell(final Player seller, String target, final String price) {
 		final Chunk chunk = seller.getLocation().getChunk();
 		final String id = ChunkID.get(chunk);
 		final double askingPrice;
@@ -212,7 +220,7 @@ public class LandUtils {
 
 					@Override
 					public String getPromptText(ConversationContext context) {
-						return String.format("%s wants to sell you the chunk at %s %d, %d for %.2f", seller.getName(), chunk.getWorld().getName(), chunk.getX(), chunk.getZ(), askingPrice);
+						return String.format("%s wants to sell you the chunk at %s %d, %d for %,.2f", seller.getName(), chunk.getWorld().getName(), chunk.getX(), chunk.getZ(), askingPrice);
 					}
 
 					@Override
@@ -226,7 +234,12 @@ public class LandUtils {
 								econ.withdrawPlayer(buyer.getName(), askingPrice);
 								econ.depositPlayer(seller.getName(), askingPrice);
 								chunks.get(id).setOwner(buyer.getName());
-								message = new EndOfConvoWithMessagePrompt("You have accepted the request.");
+								message = new EndOfConvoWithMessagePrompt("You have accepted the request.\n" +
+										String.format("You have been charged %,.2f %s\n", price, econ.currencyNamePlural() + ".") +
+										String.format("Your new balance is %,.2f %s\n", econ.getBalance(buyer.getName()), econ.currencyNamePlural() + "."));
+								seller.sendMessage("Successfully sold this plot.");
+								seller.sendMessage(String.format("You have been given %,.2f %s", price, econ.currencyNamePlural() + "."));
+								seller.sendMessage(String.format("Your new balance is %,.2f %s", econ.getBalance(seller.getName()), econ.currencyNamePlural() + "."));
 							}
 						} else {
 							seller.sendMessage(String.format("%s has declined your request.", buyer.getName()));
