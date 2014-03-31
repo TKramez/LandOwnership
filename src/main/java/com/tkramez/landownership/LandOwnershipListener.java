@@ -56,6 +56,7 @@ public class LandOwnershipListener implements Listener {
 	public void onInteractEvent(PlayerInteractEvent event) {
 		switch (event.getAction()) {
 		case RIGHT_CLICK_BLOCK:
+		case PHYSICAL:
 			Player player = event.getPlayer();
 			String id = ChunkID.get(event.getClickedBlock());
 			if (chunks.containsKey(id)) {

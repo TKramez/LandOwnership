@@ -91,11 +91,11 @@ public class Land implements Serializable {
 	}
 
 	public boolean isMember(Player player) {
-		return isMember(player.getName());
+		return isMember(player.getName()) || isOwner(player);
 	}
 	
 	public boolean isMember(String name) {
-		return isOwner(name) || members.contains(name);
+		return members.contains(name);
 	}
 	
 	public void addMember(Player player) {
