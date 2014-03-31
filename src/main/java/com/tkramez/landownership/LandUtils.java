@@ -184,6 +184,9 @@ public class LandUtils {
 		String id = ChunkID.get(seller);
 		
 		if (chunks.containsKey(id) && chunks.get(id).isOwner(seller)) {
+			if (chunks.get(id).isServerLand())
+				price = 0;
+			
 			if (econ.depositPlayer(seller.getName(), price).transactionSuccess()) {
 				chunks.remove(id);
 				seller.sendMessage("Successfully sold this plot.");

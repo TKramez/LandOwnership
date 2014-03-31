@@ -4,7 +4,7 @@
 
 	<groupId>com.tkramez</groupId>
 	<artifactId>LandOwnership</artifactId>
-	<version>0.1.12</version>
+	<version>0.1.14</version>
 	<packaging>jar</packaging>
 
 	<name>LandOwnership</name>
@@ -49,6 +49,7 @@
 	</dependencies>
 
 	<build>
+	    <finalName>LandOwnership</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
