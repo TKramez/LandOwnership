@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -23,7 +24,9 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class LandOwnershipListener implements Listener {
 
@@ -56,6 +59,7 @@ public class LandOwnershipListener implements Listener {
 	public void onInteractEvent(PlayerInteractEvent event) {
 		switch (event.getAction()) {
 		case RIGHT_CLICK_BLOCK:
+		case PHYSICAL:
 			Player player = event.getPlayer();
 			String id = ChunkID.get(event.getClickedBlock());
 			if (chunks.containsKey(id)) {
@@ -191,24 +195,43 @@ public class LandOwnershipListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		if (event.getFrom().getChunk() != event.getTo().getChunk()) {
-			Player player = event.getPlayer();
-			String id = ChunkID.get(event.getTo());
-			String ownerName = "Wild";
-			if (!currentChunkOwner.containsKey(player.getName()))
-				currentChunkOwner.put(player.getName(), ownerName);
-			
-			if (chunks.containsKey(id))
-				ownerName = chunks.get(id).getOwner();
-			
-			if (!ownerName.equals(currentChunkOwner.get(player.getName()))) {
-				currentChunkOwner.put(player.getName(), ownerName);
-				if (ownerName.equals("Wild"))
-					player.sendMessage("You have crossed into the wild!");
-				else if (chunks.get(id).isServerLand())
-					player.sendMessage("You have crossed into server land!");
-				else
-					player.sendMessage(String.format("You have crossed into land owned by %s!", ownerName));
-			}
+			notifyPlayer(event.getPlayer(), event.getTo());
 		}
+	}
+	
+	@EventHandler
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
+		if (event.getFrom().getChunk() != event.getTo().getChunk()) {
+			notifyPlayer(event.getPlayer(), event.getTo());
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		notifyPlayer(event.getPlayer());
+	}
+	
+	public void notifyPlayer(Player player, Location loc) {
+		String id = ChunkID.get(loc);
+		String ownerName = "Wild";
+		if (!currentChunkOwner.containsKey(player.getName()))
+			currentChunkOwner.put(player.getName(), ownerName);
+		
+		if (chunks.containsKey(id))
+			ownerName = chunks.get(id).getOwner();
+		
+		if (!ownerName.equals(currentChunkOwner.get(player.getName()))) {
+			currentChunkOwner.put(player.getName(), ownerName);
+			if (ownerName.equals("Wild"))
+				player.sendMessage("You have crossed into the wild!");
+			else if (chunks.get(id).isServerLand())
+				player.sendMessage("You have crossed into server land!");
+			else
+				player.sendMessage(String.format("You have crossed into land owned by %s!", ownerName));
+		}
+	}
+	
+	public void notifyPlayer(Player player) {
+		notifyPlayer(player, player.getLocation());
 	}
 }
