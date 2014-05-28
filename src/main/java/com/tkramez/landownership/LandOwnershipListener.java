@@ -76,7 +76,7 @@ public class LandOwnershipListener implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-		String id = ChunkID.get(player);
+		String id = ChunkID.get(event.getBlock());
 		
 		if (chunks.containsKey(id) && !chunks.get(id).isMember(player)) {
 			player.sendMessage(ChatColor.RED + "You can't break here.");
