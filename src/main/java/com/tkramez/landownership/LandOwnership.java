@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -114,6 +115,7 @@ public class LandOwnership extends JavaPlugin {
 		builder.append("/plot set <toggleName> <true|false> - Attempts to set the given toggle to the given value on the current plot. If no name or" +
 				" value is given then it lists the current values for all toggles of the current plot.\n");
 		builder.append("/plot server - Claims the current plot for the server. Admin only.");
+		builder.append("/plot disband <name> - Deletes all claims by the player. Admin only.");
 
 		command.setUsage(builder.toString());
 	}
@@ -170,8 +172,27 @@ public class LandOwnership extends JavaPlugin {
 						}
 						
 						return true;
+					} else if (args[0].equalsIgnoreCase("disband")) {
+						if (sender.hasPermission(ADMIN_PERM)) {
+							List<String> remove = new ArrayList<String>();
+							for (String key : chunks.keySet()) {
+								if (chunks.get(key).getOwner().equalsIgnoreCase(args[1])) {
+									remove.add(key);
+								}
+							}
+
+							for (String key : remove) {
+								chunks.remove(key);
+							}
+							
+							sender.sendMessage(remove.size() + " plots removed.");
+							return true;
+						} else {
+							sender.sendMessage(ChatColor.RED + "You don't have permission to use that command.");
+							return true;
+						}
 					}
-				}else if (args.length == 1) {
+				} else if (args.length == 1) {
 					if (purchaseCommand.contains(args[0])) {
 						return util.purchase(player, price);
 					} else if (sellCommand.contains(args[0])) {
