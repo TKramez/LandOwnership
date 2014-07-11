@@ -1,5 +1,5 @@
 name: LandOwnership
-main: com.tkramez.landownership.LandOwnership
+main: com.amity.landownership.LandOwnership
 version: ${version}
 depend: [Vault]
 
