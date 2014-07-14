@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.FileUtil;
 
 public class LandOwnership extends JavaPlugin {
 	
@@ -189,6 +192,8 @@ public class LandOwnership extends JavaPlugin {
 					// default help
 					if (args.length == 1 || args[1].equalsIgnoreCase("help")) {
 
+						player.getLastPlayed();
+						
 						StringBuilder builder = new StringBuilder(ChatColor.GREEN + "Plot Group Commands " + this.getDescription().getVersion() + ChatColor.WHITE + "\n");
 
 						builder.append(this.helpBuilder("/plot group list <page>", "Lists the groups you own."));
@@ -398,6 +403,9 @@ public class LandOwnership extends JavaPlugin {
 						if (args.length >= 3) {
 							player.sendMessage(util.groupListToggles(player, args[2].toString()));
 							return true;
+						} else {
+							player.sendMessage(failColor + "Invalid arguments specified.");
+							return true;	
 						} 						
 						
 					// set group toggles
@@ -410,6 +418,7 @@ public class LandOwnership extends JavaPlugin {
 							player.sendMessage(failColor + "Invalid arguments specified.");
 							return true;	
 						}
+
 						
 					// get basic info
 					} else if (args[1].equalsIgnoreCase("info")) {
@@ -422,7 +431,19 @@ public class LandOwnership extends JavaPlugin {
 						return true;	
 					}
 	
+				} else if (args[0].equalsIgnoreCase("listabsent") || args[0].equalsIgnoreCase("la")) {
+					
+					if (args.length == 1) {
+						player.sendMessage(util.listAbsentPlotOwners(player, 1));
+						return true;
+					} else if (args.length == 2 && this.isInt(args[1].toString())) {
+						int page = Integer.parseInt(args[1]);
+						player.sendMessage(util.landListByPlayer(player, page));
+						return true;
+					}
+					
 
+					
 				} else if (args[0].equalsIgnoreCase("listtoggles") || args[0].equalsIgnoreCase("lt")) { 
 					
 					String id = ChunkID.get(player);
@@ -469,7 +490,7 @@ public class LandOwnership extends JavaPlugin {
 
 				} else if (args[0].equalsIgnoreCase("disbandall")) {
 					if (args.length == 2) { 
-						util.landDisbandAllByOwnerName(player, args[1]);
+						util.disbandAllByOwnerName(player, args[1]);
 						return true;
 					}
 					
@@ -625,6 +646,27 @@ public class LandOwnership extends JavaPlugin {
 		log.info(this.getName() + " disabled.");
 	}
 
+	class HackedObjectInputStream extends ObjectInputStream {
+
+	    public HackedObjectInputStream(InputStream in) throws IOException {
+	        super(in);
+	    }
+
+	    @Override
+	    protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+	        ObjectStreamClass resultClassDescriptor = super.readClassDescriptor();
+
+	        if (resultClassDescriptor.getName().equals("com.tkramez.landownership.Land"))
+	            resultClassDescriptor = ObjectStreamClass.lookup(com.amity.landownership.Land.class);
+	        if (resultClassDescriptor.getName().equals("com.tkramez.landownership.Toggle"))
+	            resultClassDescriptor = ObjectStreamClass.lookup(com.amity.landownership.Toggle.class);
+	        if (resultClassDescriptor.getName().equals("com.tkramez.landownership.LandGroup"))
+	            resultClassDescriptor = ObjectStreamClass.lookup(com.amity.landownership.LandGroup.class);
+	        
+	        return resultClassDescriptor;
+	    }
+	}	
+	
 	public void save() {
 		try {
 			log.info("Saving plot data...");
@@ -674,30 +716,44 @@ public class LandOwnership extends JavaPlugin {
 
 	@SuppressWarnings("unchecked")
 	public void load() throws IOException, ClassNotFoundException {
+
+		File plotFile = new File(plotDataPath);
+		File groupFile = new File(groupDataPath);
+
+		File plotFileBackup = new File(plotDataPath + "_" + System.currentTimeMillis());
+		File groupFileBackup = new File(groupDataPath + "_" + System.currentTimeMillis());
+		
+		
+		log.info("Backing up plot data.");
+		
+		FileUtil.copy(plotFile, plotFileBackup);
+		FileUtil.copy(groupFile, groupFileBackup);
+		
+		
 		log.info("Data loading.");
 		
-		File plotFile = new File(plotDataPath);
 
 		if (plotFile.exists()) {
-			ObjectInputStream stream = null;
+			
+			HackedObjectInputStream stream = null;
 
 			try {
-				stream = new ObjectInputStream(new FileInputStream(plotFile));
+				stream = new HackedObjectInputStream(new FileInputStream(plotFile));
 
 				chunks = (HashMap<String, Land>) stream.readObject();
+				
 			} finally {
 				if (stream != null)
 					stream.close();
 			}
 		}
 		
-		File groupFile = new File(groupDataPath);
 
 		if (groupFile.exists()) {
-			ObjectInputStream stream = null;
+			HackedObjectInputStream stream = null;
 
 			try {
-				stream = new ObjectInputStream(new FileInputStream(groupFile));
+				stream = new HackedObjectInputStream(new FileInputStream(groupFile));
 
 				groups = (HashMap<String, LandGroup>) stream.readObject();
 			} finally {
@@ -738,6 +794,7 @@ public class LandOwnership extends JavaPlugin {
 		buildCommandUsage();
 	}
 
+	
 	private boolean setupEcon() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {

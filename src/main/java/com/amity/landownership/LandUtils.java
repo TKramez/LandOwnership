@@ -20,6 +20,8 @@ import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.PluginNameConversationPrefix;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
+
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -96,6 +98,45 @@ public class LandUtils {
 	
 	}	
 
+	public String listAbsentPlotOwners(Player callingPlayer, int page) {
+		
+		if (!this.isAuth(callingPlayer, "AM")) {
+			return failColor + "You do not have access to list absent plot owners.";
+		}		
+		
+		long baseTime = System.currentTimeMillis();		
+		List<String> list = new ArrayList<String>();
+		List<String> ownerList =  new ArrayList<String>(); 
+		
+		for (Land land : chunks.values()) {
+	
+			String owner = land.getOwner();
+			if (!ownerList.contains(owner))
+				ownerList.add(owner);
+		}
+		
+			
+		for (String owner : ownerList) {
+			
+			OfflinePlayer oPlayer = callingPlayer.getServer().getOfflinePlayer(owner);
+			
+			long playerLastSeen = oPlayer.getLastPlayed();
+			
+			long diffDays = (playerLastSeen - baseTime) / (24 *  60 * 60 * 1000);
+			
+			if (diffDays >= 30) {
+				list.add(String.format("%s : %d days",owner,diffDays));
+			}
+			
+		}
+		
+		
+		String header = formatHeader(String.format("Absent Plot Owners ", list.size()));			
+		return this.pageFormat(header, list, page);		
+		
+		
+	}
+	
 	
 	public boolean landDegroup(Player callingPlayer, String chunkID) {
 		
@@ -383,7 +424,7 @@ public class LandUtils {
 		return true;
 	}
 	
-	public boolean landDisbandAllByOwnerName(Player player, String ownerName) {
+	public boolean disbandAllByOwnerName(Player player, String ownerName) {
 		int i = 0;
 		
 		if (this.isAuth(player, "A")) {
@@ -397,6 +438,18 @@ public class LandUtils {
 			}
 			player.sendMessage(String.format(successColor + "The %s lands of [%s] have been returned to the wild.",i,formatName(ownerName)));
 
+			i = 0;
+			for (Iterator<Entry<String, LandGroup>> group = groups.entrySet().iterator(); group.hasNext();) {
+				Entry<String, LandGroup> thisGroup = group.next();
+				if (thisGroup.getValue().isOwner(ownerName)) {
+					group.remove();
+					i++;
+				}
+			}
+			player.sendMessage(String.format(successColor + "The %s groups of [%s] have been disbanded.",i,formatName(ownerName)));
+
+						
+			
 			
 		} else {
 			player.sendMessage(failColor + "You do not have permission to use that command.");

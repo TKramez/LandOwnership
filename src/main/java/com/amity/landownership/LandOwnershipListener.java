@@ -145,7 +145,7 @@ public class LandOwnershipListener implements Listener {
 	@EventHandler
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 		
-		if (event.getEntity() instanceof Animals)
+		if (!event.getLocation().getWorld().getName().endsWith("_nether") && !event.getLocation().getWorld().getName().endsWith("_the_end") && event.getEntity() instanceof Animals)
 			return;
 		
 		String id = ChunkID.get(event.getLocation());
@@ -306,13 +306,13 @@ public class LandOwnershipListener implements Listener {
 		if (!ownerName.equals(currentChunkOwner.get(player.getName()))) {
 			currentChunkOwner.put(player.getName(), ownerName);
 			if (ownerName.equals("Wild")) {
-				player.sendMessage("You have crossed into the wild!");
+				player.sendMessage(ChatColor.GRAY + "You have crossed into the wild!");
 			}
 			else if (chunks.get(id).isServerLand()) {
-				player.sendMessage("You have crossed into server land!");
+				player.sendMessage(ChatColor.GRAY + "You have crossed into server land!");
 			}
 			else {
-				player.sendMessage(String.format("You have crossed into land owned by %s!", ownerName));
+				player.sendMessage(String.format(ChatColor.GRAY + "You have crossed into land owned by %s!", ownerName));
 			}
 		}
 	}
