@@ -66,7 +66,7 @@ public class Land implements Serializable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s: %s %d, %d %d Members", owner, plotName, x, z, members.size());
+		return String.format("ID: [%s,%d,%d], Members: [%d]", world, x, z, members.size());
 	}
 	
 	public String getOwner() {
