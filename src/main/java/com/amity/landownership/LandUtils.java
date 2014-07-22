@@ -376,7 +376,7 @@ public class LandUtils {
 						color = failColor;
 					letter = chunks.get(id).getOwner().charAt(0);
 				} else if (isCurrent)
-					color = successColor;
+					color = ChatColor.WHITE;
 					
 				
 				builder.append(color).append(letter);
