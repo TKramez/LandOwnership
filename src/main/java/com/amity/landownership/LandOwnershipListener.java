@@ -59,51 +59,34 @@ public class LandOwnershipListener implements Listener {
 		Player player = event.getPlayer();
 		String id = ChunkID.get(event.getBlock());
 		
+		if (!this.hasPerm(player, id)) {
+			player.sendMessage(ChatColor.RED + "You can't build here.");
+			event.setCancelled(true);
+			return;
+		}		
+		
 		if (!chunks.containsKey(id)) {
 			Material blocktype = event.getBlock().getType();
 			if (!blocktype.equals("COBBLESTONE") && !blocktype.equals("GRAVEL") && !blocktype.equals("DIRT")) {
-				if (!notifyThrottleCheck(player))
+				if (notifyThrottleCheck(player))
 					player.sendMessage(ChatColor.GRAY + "Warning - you are building on unprotected land!");				
 			}
 			
 		}
-		else if (!this.hasPerm(player, id)) {
-			player.sendMessage(ChatColor.RED + "You can't build here.");
-			event.setCancelled(true);
-		}
+
 		
 	}
 
+	
 	@EventHandler
 	public void onInteractEvent(PlayerInteractEvent event) {
 		
 		String id = ChunkID.get(event.getClickedBlock());
-		Material material = event.getMaterial();
-		
-		// public land
-		if (this.getToggle(Toggle.Public, id))
-			return;
-		
-		// public chests
-		if (this.getToggle(Toggle.PublicChests, id) && this.isChest(material))
-			return;
-
-		// public triggers
-		if (this.getToggle(Toggle.PublicTriggers, id) && this.isTrigger(material))
-			return;
-		
-		// public crafting
-		if (this.getToggle(Toggle.PublicCrafting, id) && this.isCrafting(material))
-			return;
-			
-		// allow potions
-		if (this.getToggle(Toggle.AllowPotions, id) && material.equals("POTION")) {
-			return;
-		}
-
-
+		Material material = event.getClickedBlock().getType();
 		Player player = event.getPlayer();
 
+		boolean playerHasPerm = this.hasPerm(player, id);
+		
 		switch (event.getAction()) {
 		case LEFT_CLICK_BLOCK:
 			
@@ -113,18 +96,59 @@ public class LandOwnershipListener implements Listener {
 				event.setCancelled(true);
 			}
 
-			break;			
-		case RIGHT_CLICK_BLOCK:
+			break;		
+			
+		case RIGHT_CLICK_BLOCK:	
 		case PHYSICAL:
 			
-
-			// check food
+			// public land
+			if (this.getToggle(Toggle.Public, id))
+				break;
 			
-			if (player.getItemInHand().getType().isEdible() && !this.isTrigger(material))
+			if (this.isChest(material)) {
+				if (!this.getToggle(Toggle.PublicChests, id) && !playerHasPerm) {
+					player.sendMessage(ChatColor.RED + "You do not have access to chests here.");
+					event.setCancelled(true);
+					return;						
+				}
+ 
+			} else if (this.isTrigger(material)) {
+				if (!this.getToggle(Toggle.PublicTriggers, id) && !playerHasPerm) {
+					if (notifyThrottleCheck(player))
+						player.sendMessage(ChatColor.RED + "You do not have access to triggers here.");
+					event.setCancelled(true);
+					return;	
+				}
+					
+			} else if (this.isCrafting(material)) {
+				if (!this.getToggle(Toggle.PublicCrafting, id) && !playerHasPerm) {
+					player.sendMessage(ChatColor.RED + "You do not have access to use this here.");
+					event.setCancelled(true);
+					return;
+				}
+					
+			} else if (material.equals("POTION")) {
+				if (!this.getToggle(Toggle.AllowPotions, id) && !playerHasPerm) {
+					player.sendMessage(ChatColor.RED + "You are not allowed to throw potions there.");
+					event.setCancelled(true);
+					return;
+				}
+
+			} else if (material.equals("ITEM_BLOCK") && !this.hasPerm(player, id)) {
+				if (!notifyThrottleCheck(player))
+					player.sendMessage(ChatColor.RED + "You can't touch that.");
+				event.setCancelled(true);
+				
+			} else if ((player.getItemInHand().getType().isEdible() && !this.isTrigger(material)) || !playerHasPerm) {
+				return;
+				
+			} else if (!this.hasPerm(player, id) && material.isBlock()) {
+				player.sendMessage(ChatColor.RED + "You can't build here.");
+				event.setCancelled(true);
 				return;
 			
-			if (!this.hasPerm(player, id)) {
-				if (!notifyThrottleCheck(player))
+			} else if (!this.hasPerm(player, id)) {
+				if (notifyThrottleCheck(player))
 					player.sendMessage(ChatColor.RED + "You can't use that.");
 				event.setCancelled(true);
 			}
@@ -133,6 +157,8 @@ public class LandOwnershipListener implements Listener {
 			default:
 		}
 	}
+
+
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {

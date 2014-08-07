@@ -126,7 +126,7 @@ public class LandUtils {
 			
 			long playerLastSeen = oPlayer.getLastPlayed();
 			
-			long diffDays = (playerLastSeen - baseTime) / (24 *  60 * 60 * 1000);
+			long diffDays = (baseTime - playerLastSeen) / (24 *  60 * 60 * 1000);
 			
 			if (diffDays >= days) {
 				list.add(String.format("%s : %d days",owner,diffDays));
@@ -135,7 +135,7 @@ public class LandUtils {
 		}
 		
 		
-		String header = formatHeader(String.format("Absent Plot Owners ", list.size()));			
+		String header = formatHeader(String.format("Absent Plot Owners - %d Days ",days));			
 		return this.pageFormat(header, list, page);		
 		
 		
@@ -249,7 +249,7 @@ public class LandUtils {
 
 	}
 	
-	
+ 	
 	private void markChunk(Chunk chunk) {
 		if (plugin.getMarkPlot()) {
 			for (int x = 0; x < 16; x += 15) {
@@ -257,7 +257,7 @@ public class LandUtils {
 					int y;
 					
 					int maxHeight = 255;
-					if (chunk.getWorld().toString() == "world_nether") {
+					if (chunk.getWorld().getName().endsWith("_nether")) {
 						maxHeight = 127;
 					}
 					

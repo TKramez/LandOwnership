@@ -1,7 +1,7 @@
 package com.amity.landownership;
 
 public enum Toggle {
-	
+ 	
 	MobSpawning,
 	CreeperExplosions,
 	GhastExplosions,

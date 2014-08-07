@@ -56,7 +56,7 @@ public class LandOwnership extends JavaPlugin {
 	public HashMap<String, LandGroup> getGroups() {
 		return groups;
 	}	
-	
+	 
 	public HashMap<String, List<String>> getGroupLookup() {
 		return groupLookup;
 	}		
