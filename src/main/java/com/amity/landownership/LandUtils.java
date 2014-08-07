@@ -255,7 +255,14 @@ public class LandUtils {
 			for (int x = 0; x < 16; x += 15) {
 				for (int z = 0; z < 16; z += 15) {
 					int y;
-					for (y = chunk.getWorld().getMaxHeight() - 1; chunk.getBlock(x, y, z).getType() == Material.AIR; y--) ;
+					
+					int maxHeight = 255;
+					if (chunk.getWorld().toString() == "world_nether") {
+						maxHeight = 127;
+					}
+					
+					
+					for (y = maxHeight; chunk.getBlock(x, y, z).getType() == Material.AIR; y--) ;
 					Block block = chunk.getBlock(x, y, z);
 					switch (block.getType()) {
 					case WATER:
