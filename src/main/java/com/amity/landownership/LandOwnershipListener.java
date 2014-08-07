@@ -38,6 +38,7 @@ public class LandOwnershipListener implements Listener {
 	private HashMap<String, Land> chunks;
 	private HashMap<String, LandGroup> groups;
 	private HashMap<String, String> currentChunkOwner = new HashMap<String, String>();
+	private HashMap<String, Long> notifyThrottle = new HashMap<String, Long>();
 
 	
 	public LandOwnershipListener(LandOwnership pl) {
@@ -54,24 +55,67 @@ public class LandOwnershipListener implements Listener {
 
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
+		
 		Player player = event.getPlayer();
 		String id = ChunkID.get(event.getBlock());
-		if (!this.hasPerm(player, id)) {
+		
+		if (!chunks.containsKey(id)) {
+			Material blocktype = event.getBlock().getType();
+			if (!blocktype.equals("COBBLESTONE") && !blocktype.equals("GRAVEL") && !blocktype.equals("DIRT")) {
+				if (!notifyThrottleCheck(player))
+					player.sendMessage(ChatColor.GRAY + "Warning - you are building on unprotected land!");				
+			}
+			
+		}
+		else if (!this.hasPerm(player, id)) {
 			player.sendMessage(ChatColor.RED + "You can't build here.");
 			event.setCancelled(true);
 		}
+		
 	}
 
 	@EventHandler
 	public void onInteractEvent(PlayerInteractEvent event) {
+		
+		String id = ChunkID.get(event.getClickedBlock());
+		Material material = event.getMaterial();
+		
+		// public land
+		if (this.getToggle(Toggle.Public, id))
+			return;
+		
+		// public chests
+		if (this.getToggle(Toggle.PublicChests, id) && this.isChest(material))
+			return;
+
+		// public triggers
+		if (this.getToggle(Toggle.PublicTriggers, id) && this.isTrigger(material))
+			return;
+		
+		// public crafting
+		if (this.getToggle(Toggle.PublicCrafting, id) && this.isCrafting(material))
+			return;
+			
+		// allow potions
+		if (this.getToggle(Toggle.AllowPotions, id) && material.equals("POTION")) {
+			return;
+		}
+		
+		
 		switch (event.getAction()) {
 		case RIGHT_CLICK_BLOCK:
 		case PHYSICAL:
+			
 			Player player = event.getPlayer();
-			String id = ChunkID.get(event.getClickedBlock());
 
-			if (!this.hasPerm(player, id) && !this.getToggle(Toggle.Public, id)) {
-				player.sendMessage(ChatColor.RED + "You can't use that.");
+			// check food
+			
+			if (player.getItemInHand().getType().isEdible() && !this.isTrigger(material))
+				return;
+			
+			if (!this.hasPerm(player, id)) {
+				if (!notifyThrottleCheck(player))
+					player.sendMessage(ChatColor.RED + "You can't use that.");
 				event.setCancelled(true);
 			}
 
@@ -82,6 +126,7 @@ public class LandOwnershipListener implements Listener {
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
+		
 		Player player = event.getPlayer();
 		String id = ChunkID.get(event.getBlock());
 		
@@ -89,6 +134,7 @@ public class LandOwnershipListener implements Listener {
 			player.sendMessage(ChatColor.RED + "You can't break here.");
 			event.setCancelled(true);
 		}
+		
 	}
 	
 	@EventHandler
@@ -165,29 +211,6 @@ public class LandOwnershipListener implements Listener {
 	
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent  event) {
-		/*
-		if (event.getEntity() instanceof Player) {
-
-			Entity damager = event.getDamager();
-
-			if (event.getCause() == DamageCause.PROJECTILE) {
-				damager = ((Projectile)damager).getShooter();
-			}
-			
-			Player defender = (Player) event.getEntity();
-			Player attacker = (Player) damager.getLocation();
-			
-			String id1 = ChunkID.get(defender);
-			String id2 = ChunkID.get(attacker);
-			
-			if (!this.getToggle(Toggle.Pvp,id1) || !this.getToggle(Toggle.Pvp,id2)) {
-				String message = ChatColor.RED + "PVP is disabled in this plot.";
-				defender.sendMessage(message);
-				attacker.sendMessage(message);
-				event.setCancelled(true);
-			}
-		}
-		*/
 		
 		if (event.isCancelled()) return;
 		if (event.getEntity() instanceof Player) {
@@ -244,7 +267,8 @@ public class LandOwnershipListener implements Listener {
 				} else return;			
 				
 				if (!chunk.isMember(attacker)) {
-					attacker.sendMessage(ChatColor.RED + "You are not allowed to attack animals here.");
+					if (!notifyThrottleCheck(attacker))
+						attacker.sendMessage(ChatColor.RED + "You are not allowed to attack animals here.");
 					event.setCancelled(true);
 				}
 			}
@@ -321,6 +345,27 @@ public class LandOwnershipListener implements Listener {
 		notifyPlayer(player, player.getLocation());
 	}
 	
+	
+	public boolean notifyThrottleCheck(Player player) {
+		
+		long currentTime = System.currentTimeMillis();
+		String playerName = player.getName();
+		
+		if (notifyThrottle.containsKey(playerName)) {
+			Long notifyTime = notifyThrottle.get(playerName);
+			if (currentTime - notifyTime < 60000) {
+				return false;
+			} else {
+				notifyThrottle.remove(playerName);
+			}
+		} 
+
+		notifyThrottle.put(playerName, currentTime);
+		return true;
+		
+	}
+	
+	
 	private boolean hasPerm(Player player, String chunkID) {
 		
 		if (!chunks.containsKey(chunkID)) 
@@ -362,6 +407,63 @@ public class LandOwnershipListener implements Listener {
 		return false;
 		
 	}
+	
+	private boolean isChest(Material material) {
+		switch (material) {
+		case CHEST:
+		case ENDER_CHEST:
+		case TRAPPED_CHEST:
+			return true;
+		default:
+			return false;
+		}
+		
+	}
+	
+	private boolean isCrafting(Material material) {
+		switch (material) {
+		case ANVIL:
+		case BREWING_STAND:
+		case BURNING_FURNACE:
+		case CAULDRON:
+		case DISPENSER:
+		case DROPPER:
+		case ENCHANTMENT_TABLE:
+		case FURNACE:
+		case HOPPER:
+		case HOPPER_MINECART:
+		case JUKEBOX:
+		case NOTE_BLOCK:
+		case WORKBENCH:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
+	
+	private boolean isTrigger(Material material) {
+		switch (material) {
+		case ACTIVATOR_RAIL:
+		case DETECTOR_RAIL:
+		case FENCE_GATE:
+		case IRON_DOOR:
+		case IRON_DOOR_BLOCK:
+		case IRON_PLATE:
+		case LEVER:
+		case STONE_BUTTON:
+		case STONE_PLATE:
+		case TRAP_DOOR:
+		case WOODEN_DOOR:
+		case WOOD_BUTTON:
+		case WOOD_DOOR:
+		case WOOD_PLATE:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
 	
 	
 	

@@ -4,7 +4,7 @@
 
 	<groupId>com.amity</groupId>
 	<artifactId>LandOwnership</artifactId>
-	<version>0.2.56</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>LandOwnership</name>

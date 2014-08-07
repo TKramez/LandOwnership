@@ -12,7 +12,11 @@ public enum Toggle {
 	FireSpread,
 	LavaFlow,
 	WaterFlow,
-	Public;
+	Public,
+	PublicChests,
+	PublicCrafting,
+	PublicTriggers,
+	AllowPotions;
 	
 	public static Toggle getByName(String str) {
 		for (Toggle toggle : Toggle.values()) {
