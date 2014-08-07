@@ -99,6 +99,10 @@ public class LandUtils {
 	}	
 
 	public String listAbsentPlotOwners(Player callingPlayer, int page) {
+		return listAbsentPlotOwners(callingPlayer, page, 30);
+	}
+	
+	public String listAbsentPlotOwners(Player callingPlayer, int page, int days) {
 		
 		if (!this.isAuth(callingPlayer, "AM")) {
 			return failColor + "You do not have access to list absent plot owners.";
@@ -124,7 +128,7 @@ public class LandUtils {
 			
 			long diffDays = (playerLastSeen - baseTime) / (24 *  60 * 60 * 1000);
 			
-			if (diffDays >= 30) {
+			if (diffDays >= days) {
 				list.add(String.format("%s : %d days",owner,diffDays));
 			}
 			

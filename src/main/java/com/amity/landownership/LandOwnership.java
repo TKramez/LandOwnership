@@ -181,6 +181,8 @@ public class LandOwnership extends JavaPlugin {
 						builder.append(this.helpBuilder("/plot disbandall", "Clears all plots belonging to <playername> and returns them to the wild."));
 						builder.append(this.helpBuilder("/plot changeowner <playername>","Changes the plot owner to <playername>."));
 						builder.append(this.helpBuilder("/plot server","Claims the current plot for the server."));
+						builder.append(this.helpBuilder("/plot listabsent <page>","Lists plot owners who have not been seen in 30 days."));
+						builder.append(this.helpBuilder("/plot listabsentx <days> <page>","Lists plot owners who have not been seen in <days>."));
 					}
 					
 					player.sendMessage(builder.toString());
@@ -438,11 +440,26 @@ public class LandOwnership extends JavaPlugin {
 						return true;
 					} else if (args.length == 2 && this.isInt(args[1].toString())) {
 						int page = Integer.parseInt(args[1]);
-						player.sendMessage(util.landListByPlayer(player, page));
+						player.sendMessage(util.listAbsentPlotOwners(player, page));
 						return true;
 					}
 					
-
+					
+				} else if (args[0].equalsIgnoreCase("listabsentx") || args[0].equalsIgnoreCase("lax")) {
+					
+					if (args.length == 1) {
+						player.sendMessage(failColor + "Invalid arguments specified.");
+						return true;							
+					} else if (args.length == 2 && this.isInt(args[1].toString())) {
+						int days = Integer.parseInt(args[1]);
+						player.sendMessage(util.listAbsentPlotOwners(player, 1, days));
+						return true;
+					} else if (args.length == 3 && this.isInt(args[1].toString())  && this.isInt(args[2].toString())) {
+						int page = Integer.parseInt(args[2]);
+						int days = Integer.parseInt(args[1]);
+						player.sendMessage(util.listAbsentPlotOwners(player, page, days));
+						return true;
+					}
 					
 				} else if (args[0].equalsIgnoreCase("listtoggles") || args[0].equalsIgnoreCase("lt")) { 
 					
