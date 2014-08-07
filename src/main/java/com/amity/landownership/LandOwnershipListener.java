@@ -100,13 +100,23 @@ public class LandOwnershipListener implements Listener {
 		if (this.getToggle(Toggle.AllowPotions, id) && material.equals("POTION")) {
 			return;
 		}
-		
-		
+
+
+		Player player = event.getPlayer();
+
 		switch (event.getAction()) {
+		case LEFT_CLICK_BLOCK:
+			
+			if (material.equals("ITEM_BLOCK") && !this.hasPerm(player, id)) {
+				if (!notifyThrottleCheck(player))
+					player.sendMessage(ChatColor.RED + "You can't touch that.");
+				event.setCancelled(true);
+			}
+
+			break;			
 		case RIGHT_CLICK_BLOCK:
 		case PHYSICAL:
 			
-			Player player = event.getPlayer();
 
 			// check food
 			
