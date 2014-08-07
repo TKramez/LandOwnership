@@ -272,7 +272,7 @@ public class LandUtils {
 	public boolean landAddPlayer(Player player, String name) {
 		String id = ChunkID.get(player);
 		
-		if (chunks.containsKey(id) && chunks.get(id).isOwner(player.getName())) {
+		if (chunks.containsKey(id) && (chunks.get(id).isOwner(player.getName()) || this.isAuth(player, "A"))) {
 			chunks.get(id).addMember(name);
 			player.sendMessage("Player added.");
 			return true;
@@ -303,7 +303,7 @@ public class LandUtils {
 	public boolean landRemovePlayer(Player player, String name) {
 		String id = ChunkID.get(player);
 		
-		if (chunks.containsKey(id) && chunks.get(id).isOwner(player.getName())) {
+		if (chunks.containsKey(id) && (chunks.get(id).isOwner(player.getName()) || this.isAuth(player, "A"))) {
 			chunks.get(id).removeMember(name);
 			player.sendMessage("Player removed.");
 		} else
