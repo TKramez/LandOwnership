@@ -1,8 +1,9 @@
-package com.tkramez.landownership;
+package com.amity.landownership;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Player;
 
 public class ChunkID {
@@ -14,6 +15,10 @@ public class ChunkID {
 	public static String get(Player player) {
 		return get(player.getLocation());
 	}
+	
+	public static String get(Animals animal) {
+		return get(animal.getLocation());
+	}	
 	
 	public static String get(Location loc) {
 		return get(loc.getChunk());

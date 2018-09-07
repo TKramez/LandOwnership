@@ -1,4 +1,4 @@
-package com.tkramez.landownership;
+package com.amity.landownership;
 
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.MessagePrompt;

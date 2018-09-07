@@ -1,34 +1,33 @@
-package com.tkramez.landownership;
+package com.amity.landownership;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
-public class Land implements Serializable {
 
-	private static final long serialVersionUID = 2903036802636156439L;
+public class LandGroup implements Serializable {
 	
+	
+	private static final long serialVersionUID = -7379384219905138948L;
+
+	private String groupName;
 	private String owner;
-	private final String world;
-	private final int x, z;
+	
+	private List<String> memberChunks = new ArrayList<String>();
 	private List<String> members = new ArrayList<String>();
 	private EnumMap<Toggle, Boolean> toggles = new EnumMap<Toggle, Boolean>(Toggle.class);
 	
-	public Land(Player player, Chunk chunk) {
-		this(player.getName(), chunk);
+	public LandGroup(String name, String groupOwner) {
+		
+		owner = groupOwner;
+		groupName = name;
+		resetToggles();
+		
 	}
 	
-	public Land(String name, Chunk chunk) {
-		owner = name;
-		world = chunk.getWorld().getName();
-		x = chunk.getX();
-		z = chunk.getZ();
-		resetToggles();
-	}
 	
 	public void setToggle(Toggle toggle, boolean value) {
 		if (toggles == null)
@@ -44,7 +43,7 @@ public class Land implements Serializable {
 			toggles.put(toggle, false);
 		
 		return toggles.get(toggle);
-	}
+	}	
 	
 	private void resetToggles() {
 		if (toggles == null)
@@ -52,19 +51,14 @@ public class Land implements Serializable {
 		
 		for (Toggle toggle : Toggle.values())
 			toggles.put(toggle, false);
-	}
-
-	public boolean isServerLand() {
-		return owner.equalsIgnoreCase("server");
-	}
-	
-	public String getChunkID() {
-		return String.format("%s,%d,%d", world, x, z);
+	}		
+		
+	public String getName() {
+		return groupName;
 	}
 	
-	@Override
-	public String toString() {
-		return String.format("%s: %s %d, %d %d Members", owner, world, x, z, members.size());
+	public void setName(String name) {
+		groupName = name;
 	}
 	
 	public String getOwner() {
@@ -82,8 +76,12 @@ public class Land implements Serializable {
 		resetToggles();
 	}
 
+	public boolean isServerGroup() {
+		return owner.equalsIgnoreCase("server");
+	}
+	
 	public boolean isOwner(Player player) {
-		return (isServerLand() && player.hasPermission(LandOwnership.ADMIN_PERM)) || isOwner(player.getName());
+		return (isServerGroup() && player.hasPermission(LandOwnership.ADMIN_PERM)) || isOwner(player.getName());
 	}
 	
 	public boolean isOwner(String name) {
@@ -97,6 +95,10 @@ public class Land implements Serializable {
 	public boolean isMember(String name) {
 		return members.contains(name);
 	}
+	
+	public List<String> getMembers() {
+		return members;
+	}	
 	
 	public void addMember(Player player) {
 		addMember(player.getName());
@@ -112,6 +114,45 @@ public class Land implements Serializable {
 	}
 
 	public boolean removeMember(String name) {
-		return members.remove(name);
+		
+		if (members.contains(name)) {
+			return members.remove(name);
+		} 
+		else return false;
+		
+	}	
+	
+	
+	public boolean isPlotMember(String chunkID) {
+		
+		if (memberChunks.contains(chunkID))
+			return true;
+		else
+			return false;
+		
 	}
+	
+	// add a chunk to the group
+	public boolean addLand(String chunkID) {
+		
+		if (!memberChunks.contains(chunkID))
+			memberChunks.add(chunkID);
+		
+		return true;
+	}
+	
+	// remove a chunk from the group
+	public boolean removeLand(String chunkID) {
+		
+		if (memberChunks.contains(chunkID))
+			memberChunks.remove(chunkID);
+		
+		return true;
+	}
+	
+	public List<String> getLands() {
+		return memberChunks;
+	}
+	
+	
 }
